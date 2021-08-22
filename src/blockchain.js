@@ -182,17 +182,6 @@ class Blockchain {
         let stars = [];
         return new Promise((resolve, reject) => {
             // Getting all decoded body objects from the blocks
-            // for (const block of self.chain) {
-            //     block.getBData().then(body => {
-            //         console.log(JSON.stringify(body));
-            //         if (body.address === address) {
-            //             console.log(`Body address: ${body.address}`)
-            //             console.log(`Address param: ${address}`);
-            //             stars.push({"owner": address, "star": body.star})
-            //         }
-            //     }).catch(error => console.log(error));
-            // }
-
             const promises = [];
 
             for (let block of self.chain) {
@@ -218,27 +207,6 @@ class Blockchain {
                 else
                     reject(`No stars belong to address ${address}`);
             });
-        });
-    }
-
-    extractStarsFromBody(block) {
-        let star = {};
-        return (async () => {
-            await block.getBData().then(data => star = data.star).catch(error => console.log(error));
-            return star;
-        });
-    }
-
-    getAllBlocks() {
-        let self = this;
-        return new Promise((resolve, reject) => {
-            let bodies = [];
-            self.chain.forEach(async block => {
-                await block.getBData()
-                .then(body => bodies.push(body))
-                .catch(error => bodies.push(error));
-            })
-            resolve(bodies);
         });
     }
 

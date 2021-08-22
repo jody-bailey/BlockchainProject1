@@ -17,7 +17,6 @@ class BlockchainController {
         this.submitStar();
         this.getBlockByHash();
         this.getStarsByOwner();
-        this.getAllBlocks();
     }
 
     // Enpoint to Get a Block by Height (GET Endpoint)
@@ -116,13 +115,6 @@ class BlockchainController {
                 return res.status(500).send("Block Not Found! Review the Parameters!");
             }
             
-        });
-    }
-
-    getAllBlocks() {
-        this.app.get("/allblocks", async (req, res) => {
-            let blocks = await this.blockchain.getAllBlocks().catch(error => console.log(error));
-            return res.status(200).json(blocks);
         });
     }
 

@@ -39,20 +39,22 @@ class Block {
         let self = this;
         return new Promise((resolve, reject) => {
             // Save in auxiliary variable the current block hash
-            var currentHash = self.hash;
+            let currentHash = self.hash;
+            let prevBlockHash = self.previousBlockHash;
 
             // Recalculate the hash of the Block
-            self.hash = SHA256(JSON.stringify(self));
-
-            // Comparing if the hashes changed
-            var unchanged = currentHash === self.hash;
+            let clone = { ...self };
+            clone.hash = null;
+            let newHash = SHA256(JSON.stringify(clone)).toString();
 
             // Returning the Block is not valid
             // Returning the Block is valid
-            if (!unchanged)
-                reject('Not valid');
-            else
-                resolve('Valid');
+            if (currentHash === newHash) {
+                resolve(self);
+            }
+            else {
+                reject(`${self.hash} is not valid`);
+            }
         });
     }
 
@@ -69,7 +71,7 @@ class Block {
         let self = this;
         return new Promise((resolve, reject) => {
             // Getting the encoded data saved in the Block
-            var encodedData = this.body;
+            var encodedData = self.body;
 
             // Decoding the data to retrieve the JSON representation of the object
             var decodedData = hex2ascii(encodedData);

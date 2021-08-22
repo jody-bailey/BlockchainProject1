@@ -34,7 +34,7 @@ class Blockchain {
      * Passing as a data `{data: 'Genesis Block'}`
      */
     async initializeChain() {
-        if( this.height === -1){
+        if (this.height === -1){
             let block = new BlockClass.Block({data: 'Genesis Block'});
             await this._addBlock(block);
         }
@@ -67,14 +67,16 @@ class Blockchain {
             try {
                 block.height = self.chain.length;
 
-                await block.getBData().then(response => {
+                if (self.height === -1)
+                    block.previousBlockHash = null;
+                else
                     block.previousBlockHash = self.chain[self.chain.length-1].hash;
-                })
-                .catch(err => console.log(err));
 
                 block.time = new Date().getTime().toString().slice(0, -3);
-                block.hash = SHA256(JSON.stringify(block));
-                self.height = self.chain.push(block);
+
+                block.hash = SHA256(JSON.stringify(block)).toString();
+                self.chain.push(block);
+                self.height++;
                 resolve(block);
             } catch (error) {
                 reject(error);
@@ -144,7 +146,7 @@ class Blockchain {
     getBlockByHash(hash) {
         let self = this;
         return new Promise((resolve, reject) => {
-           let block = self.chain.filter((cHash) => cHash === hash);
+           let block = self.chain.filter(b => b.hash === hash);
            if (block != null)
                 resolve(block);
             else
@@ -179,7 +181,8 @@ class Blockchain {
         let self = this;
         let stars = [];
         return new Promise((resolve, reject) => {
-            let stars = self.chain.filter((cAddress) => cAddress === address);
+            let blocks = self.chain.filter(b => b.getBData().address === address);
+            blocks.forEach(b => stars.push({"owner": address, "star": b.getBData().star}));
             if (stars.length > 0)
                 resolve(stars);
             else
@@ -197,13 +200,17 @@ class Blockchain {
         let self = this;
         let errorLog = [];
         return new Promise(async (resolve, reject) => {
-            var errors;
-            self.chain.forEach(star => {
-                star.validate().then((result) => {
-                    // do nothing
-                }).catch((message) => errors.push(message));
+            self.chain.forEach(async block => {
+                await block.validate().then(b => {
+                    if (b.previousBlockHash != null) {
+                        let prevBlock = self.chain.filter(bl => bl.hash === b.previousBlockHash);
+                        if (prevBlock === null)
+                            errorLog.push(`Block ${b.hash}: previousBlockHash link broken`);
+                    }
+                }).catch((message) => errorLog.push(message));
             });
-            resolve(errors);
+            console.log(JSON.stringify(errorLog));
+            resolve(errorLog);
         });
     }
 

@@ -122,16 +122,16 @@ class Blockchain {
             let messageTime = parseInt(message.split(':')[1]);
             let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
 
-            let millis = currentTime - messageTime;
+            let seconds = currentTime - messageTime;
 
-            var mins = Math.round(((millis % 86400000) % 3600000) / 60000);
-
-            if (mins < 5)
+            if (seconds >= 300)
                 reject('Time limit exceeded');
             
             if (bitcoinMessage.verify(message, address, signature)) {
                 let newBlock = new BlockClass.Block({"address": address, "message": message, "signature": signature, "star": star});
-                resolve(newBlock);
+                await self._addBlock(newBlock)
+                .then(star => resolve(star))
+                .catch(error => reject(error));
             } else
                 reject('Verification failed');
         });
@@ -177,16 +177,68 @@ class Blockchain {
      * Remember the star should be returned decoded.
      * @param {*} address 
      */
-    getStarsByWalletAddress (address) {
+    getStarsByWalletAddress(address) {
         let self = this;
         let stars = [];
         return new Promise((resolve, reject) => {
-            let blocks = self.chain.filter(b => b.getBData().address === address);
-            blocks.forEach(b => stars.push({"owner": address, "star": b.getBData().star}));
-            if (stars.length > 0)
-                resolve(stars);
-            else
-                reject(`No stars belong to address ${address}`);
+            // Getting all decoded body objects from the blocks
+            // for (const block of self.chain) {
+            //     block.getBData().then(body => {
+            //         console.log(JSON.stringify(body));
+            //         if (body.address === address) {
+            //             console.log(`Body address: ${body.address}`)
+            //             console.log(`Address param: ${address}`);
+            //             stars.push({"owner": address, "star": body.star})
+            //         }
+            //     }).catch(error => console.log(error));
+            // }
+
+            const promises = [];
+
+            for (let block of self.chain) {
+                promises.push(
+                    new Promise(async (resolve) => {
+                        var body = {};
+                        await block.getBData()
+                        .then(data => body = data)
+                        .catch(error => console.log(error));
+                        resolve(body);
+                    })
+                );
+            }
+
+            Promise.all(promises).then(bodies => {
+                for (var i = 0; i < bodies.length; i++) {
+                    if (bodies[i].address != null) {
+                        stars.push({"owner": bodies[i].address, "star": bodies[i].star});
+                    }
+                }
+                if (stars)
+                    resolve(stars);
+                else
+                    reject(`No stars belong to address ${address}`);
+            });
+        });
+    }
+
+    extractStarsFromBody(block) {
+        let star = {};
+        return (async () => {
+            await block.getBData().then(data => star = data.star).catch(error => console.log(error));
+            return star;
+        });
+    }
+
+    getAllBlocks() {
+        let self = this;
+        return new Promise((resolve, reject) => {
+            let bodies = [];
+            self.chain.forEach(async block => {
+                await block.getBData()
+                .then(body => bodies.push(body))
+                .catch(error => bodies.push(error));
+            })
+            resolve(bodies);
         });
     }
 

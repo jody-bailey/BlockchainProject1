@@ -4,13 +4,13 @@
 ![alt text](images/Request_Genesis_Block.png)
 
 ### POST - Request Ownership
-![alt text](https://github.com/jody-bailey/BlockchainProject1/blob/master/Request_Ownership.png?raw=true)
+![alt text](images/Request_Ownership.png)
 
 ### Signing Message in Wallet
-![alt text](https://github.com/jody-bailey/BlockchainProject1/blob/master/Sign_Message.png?raw=true)
+![alt text](images/Sign_Message.png)
 
 ### POST - Submit Star
-![alt text](https://github.com/jody-bailey/BlockchainProject1/blob/master/Submit_Star.png?raw=true)
+![alt text](images/Submit_Star.png)
 
 ### GET - Get Stars Owned By Me
-![alt text](https://github.com/jody-bailey/BlockchainProject1/blob/master/Get_Stars_By_Me.png?raw=true)
+![alt text](images/Get_Stars_By_Me.png)

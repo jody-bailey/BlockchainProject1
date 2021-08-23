@@ -48,10 +48,9 @@ class Block {
 
             // Returning the Block is not valid or not
             if (currentHash === newHash) {
-                resolve(self);
-            }
-            else {
-                reject(`${self.hash} is not valid`);
+                resolve(true);
+            } else {
+                resolve(false);
             }
         });
     }
@@ -68,20 +67,24 @@ class Block {
     getBData() {
         let self = this;
         return new Promise((resolve, reject) => {
-            // Getting the encoded data saved in the Block
-            var encodedData = self.body;
+            try {
+                // Getting the encoded data saved in the Block
+                var encodedData = self.body;
 
-            // Decoding the data to retrieve the JSON representation of the object
-            var decodedData = hex2ascii(encodedData);
+                // Decoding the data to retrieve the JSON representation of the object
+                var decodedData = hex2ascii(encodedData);
 
-            // Parse the data to an object to be retrieve.
-            var dataObject = JSON.parse(decodedData);
-            
-            // Resolve with the data if the object isn't the Genesis block
-            if (dataObject.data === 'Genesis Block')
-                reject('Is genesis block');
-            else
-                resolve(dataObject);
+                // Parse the data to an object to be retrieve.
+                var dataObject = JSON.parse(decodedData);
+
+                // Resolve with the data if the object isn't the Genesis block
+                if (dataObject.data != 'Genesis Block')
+                    resolve(dataObject);
+                else 
+                    resolve();
+            } catch (error) {
+                reject(error);
+            }
         });
     }
 

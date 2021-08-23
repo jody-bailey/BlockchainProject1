@@ -1,7 +1,7 @@
 # Private Blockchain Application
 
 ### GET - Request Genesis Block
-![alt text](https://github.com/jody-bailey/BlockchainProject1/blob/master/Request_Genesis_Block.png?raw=true)
+![alt text](images/Request_Genesis_Block.png)
 
 ### POST - Request Ownership
 ![alt text](https://github.com/jody-bailey/BlockchainProject1/blob/master/Request_Ownership.png?raw=true)
